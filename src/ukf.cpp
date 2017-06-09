@@ -110,6 +110,24 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     is_initialized_ = true;
     return;
   }
+
+  /*****************************************************************************
+     *  Prediction
+  ****************************************************************************/
+  //Time is measured in seconds.
+  //compute the time elapsed between the current and previous measurements
+  float dt = (meas_package.timestamp_ - time_us_) / 1000000.0;    // expressed in seconds
+  time_us_ = meas_package.timestamp_;
+  Prediction(dt);
+
+  /*****************************************************************************
+    *  Predict Sensor Measurements and Update
+  ****************************************************************************/
+  if (meas_package.sensor_type_ == MeasurementPackage::RADAR && use_radar_) {
+    UpdateRadar(meas_package);
+  } else if (meas_package.sensor_type_ == MeasurementPackage::LASER && use_laser_) {
+    UpdateLidar(meas_package);
+  }
 }
 
 
