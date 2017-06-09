@@ -70,6 +70,9 @@ public:
   ///* the current NIS for laser
   double NIS_laser_;
 
+  ///* the current NIS for radar
+  double NIS_radar_;
+
   /**
    * Constructor
    */
