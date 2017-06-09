@@ -74,12 +74,45 @@ UKF::~UKF() {}
  */
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   /**
-  TODO:
 
   Complete this function! Make sure you switch between lidar and radar
   measurements.
   */
+
+  /*****************************************************************************
+    *  Initialization
+  ****************************************************************************/
+  if (!is_initialized_) {
+    // first measurement
+    if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+
+      //Convert radar from polar to cartesian coordinates and initialize state.
+      float ro = meas_package.raw_measurements_(0);
+      float phi = meas_package.raw_measurements_(1);
+      //float ro_dot = meas_package.raw_measurements_(2);
+      x_(0) = ro * cos(phi);
+      x_(1) = ro * sin(phi);
+      P_(0, 0) = std_radr_;  // used radar distance uncertainty r as initial px covariance uncertainty
+      P_(1, 1) = std_radr_;  // used radar distance uncertainty r as initial px covariance uncertainty
+    } else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+      //Initialize state.
+      float px = meas_package.raw_measurements_(0);
+      float py = meas_package.raw_measurements_(1);
+      x_(0) = px;
+      x_(1) = py;
+      P_(0, 0) = std_laspx_;  // used lidar distance uncertainty px as initial px covariance uncertainty
+      P_(1, 1) = std_laspy_;  // used lidar distance uncertainty py as initial py covariance uncertainty
+    }
+
+    time_us_ = meas_package.timestamp_;
+
+    // done initializing, no need to predict or update
+    is_initialized_ = true;
+    return;
+  }
 }
+
+
 
 /**
  * Predicts sigma points, the state, and the state covariance matrix.
